@@ -1,0 +1,304 @@
+<html>
+
+<head>
+  <title>Checkers</title>
+
+  <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+
+  <script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform float cell_width;
+    uniform float mouse_coordx;
+    uniform float mouse_coordy;
+
+    vec2 ComplSet(float x, float y)
+    {
+      vec2 z;
+      
+      z.x = x;
+      z.y = y;
+      return z;
+    }
+    
+    float ComplNorm(vec2 z)
+    {
+      float zn;
+      
+      zn = sqrt(z.x +z.y);
+      return zn;
+    }
+
+    vec2 ComplAddCompl(vec2 z1, vec2 z2)
+    {
+      vec2 z;
+      
+      z.x = z1.x + z2.x;
+      z.y = z1.y + z2.y; 
+      return z;
+    }
+
+    vec2 ComplMulCompl(vec2 z1, vec2 z2)
+    {
+      vec2 z;
+      
+      z.x = (z1.x * z2.x) - (z1.y * z2.y);
+      z.y = (z1.x * z2.y) + (z2.x * z1.y);
+      return z;
+    }
+ 
+    int Mandelbrot(vec2 Z)
+    {
+      vec2 Z0 = Z, ZLast = Z;
+      int n;
+
+      for (int i = 0; i < 255; i++){
+        if (ComplNorm(ComplMulCompl(Z, Z)) < 4.0){
+          Z = ComplAddCompl(ComplMulCompl(Z0, Z0), ZLast);
+          Z0 = Z;
+          n = i;
+        }
+      }
+      return n;
+    }
+
+    void main(void)
+    {
+      /* Mondelbrot */
+      vec2 Z0, Z, ZL;
+      int nz;
+      /* Julia */
+      vec2 J0, J, C;
+      int nj;
+      
+      /* Mondelbrot */
+      ZL = vec2((gl_FragCoord.x - mouse_coordx) / 60.0, (gl_FragCoord.y - mouse_coordy) / 60.0);
+      for (int i = 0; i < 1024; i++)
+      {
+        Z.x = Z0.x * Z0.x - Z0.y * Z0.y + ZL.x;
+        Z.y = 2.0 * Z0.x * Z0.y + ZL.y;
+        Z0 = Z;
+        if (Z0.x * Z0.x + Z0.y * Z0.y < 4.0)
+          nz = i;                  
+      } 
+      
+      /* Julia */      
+      for (int i = 0; i < 1024; i++)
+      {
+        C = vec2((gl_FragCoord.x * float(i) - 60.0) / 60.0 * float(i), (gl_FragCoord.y - 60.0) / 60.0);
+        J.x = J0.x * J0.x - J0.y * J0.y + C.x;
+        J.y = 2.0 * J0.x * J0.y + C.y;
+        J0 = J;
+        if (J0.x * J0.x + J0.y * J0.y < 4.0)
+          nj = i;                  
+      }
+      /* Mondelbrot */
+      float color = float(nz) / 1024.0;
+      gl_FragColor = vec4(color * 60.0, color * 10.0, color * 10.0, 1.0);
+      /* Julia */
+      color = float(nj) / 1024.0;
+      //gl_FragColor = vec4(color * 60.0, color * 10.0, color * 10.0, 1.0);
+    }
+</script>
+
+  <script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    void main(void)
+    {
+        gl_Position = vec4(aVertexPosition, 1.0);
+    }
+</script>
+
+
+  <script type="text/javascript">
+    var gl;
+    var checkers_cell_width;
+    function initGL(canvas) {
+      try {
+        gl = canvas.getContext("experimental-webgl");
+        gl.viewportWidth = canvas.width;
+        gl.viewportHeight = canvas.height;
+      } catch (e) {
+      }
+      if (!gl) {
+        alert("Could not initialise WebGL");
+      }
+    }
+
+
+    function getShader(gl, id) {
+      var shaderScript = document.getElementById(id);
+      if (!shaderScript) {
+        return null;
+      }
+
+      var str = "";
+      var k = shaderScript.firstChild;
+      while (k) {
+        if (k.nodeType == 3) {
+          str += k.textContent;
+        }
+        k = k.nextSibling;
+      }
+
+      var shader;
+      if (shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+      } else if (shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+      } else {
+        return null;
+      }
+
+      gl.shaderSource(shader, str);
+      gl.compileShader(shader);
+
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+      }
+
+      return shader;
+    }
+
+    var shaderProgram;
+
+    function initShaders() {
+      var fragmentShader = getShader(gl, "shader-fs");
+      var vertexShader = getShader(gl, "shader-vs");
+
+      shaderProgram = gl.createProgram();
+      gl.attachShader(shaderProgram, vertexShader);
+      gl.attachShader(shaderProgram, fragmentShader);
+      gl.linkProgram(shaderProgram);
+
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        alert("Could not initialise shaders");
+      }
+
+      gl.useProgram(shaderProgram);
+
+      shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+      gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+      shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+      shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+      shaderProgram.cell_width_uniform = gl.getUniformLocation(shaderProgram, "cell_width");
+
+      shaderProgram.mouse_coordx_uniform = gl.getUniformLocation(shaderProgram, "mouse_coordx");
+      shaderProgram.mouse_coordy_uniform = gl.getUniformLocation(shaderProgram, "mouse_coordy");
+    }
+
+
+    var mvMatrix = mat4.create();
+    var pMatrix = mat4.create();
+
+    function setMatrixUniforms() {
+      gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+      gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+      gl.uniform1f(shaderProgram.cell_width_uniform, checkers_cell_width);
+    }
+
+    function setMouseUniforms(e) {
+      var MouseCoordX = e.clientX;
+      var MouseCoordY = e.clientY;
+
+      gl.uniform1f(shaderProgram.mouse_coordx_uniform, MouseCoordX);
+      gl.uniform1f(shaderProgram.mouse_coordy_uniform, MouseCoordY);
+    }
+
+    var squareVertexPositionBuffer;
+
+    function initBuffers() {
+      squareVertexPositionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+      vertices = [
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, -1.0, 0.0
+      ];
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+      squareVertexPositionBuffer.itemSize = 3;
+      squareVertexPositionBuffer.numItems = 4;
+    }
+
+
+    function drawScene() {
+      gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+      mat4.identity(mvMatrix);
+
+      mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
+
+      mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+      gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+      gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      setMatrixUniforms();
+      //setMouseUniforms();
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    }
+
+    function tick() {
+      window.requestAnimationFrame(tick);
+      drawScene();
+    }
+
+
+    function webGLStart() {
+      // default cell width
+      checkers_cell_width = 30;
+      MouseCoordX = 0;
+      MouseCoordY = 0;
+      document.getElementById('input_checkers_cell_width').value = checkers_cell_width;
+
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open('GET', '/0/data.txt', false);
+      xmlhttp.send(null);
+      if (xmlhttp.status == 200) {
+        alert(xmlhttp.responseText);
+      }
+
+      var canvas = document.getElementById("wegl-canvas");
+      initGL(canvas);
+      initShaders();
+      initBuffers();
+
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.enable(gl.DEPTH_TEST);
+
+      drawScene();
+      tick();
+    }
+
+    function update_checkers_cell_width() {
+      data = document.getElementById('input_checkers_cell_width').value;
+      checkers_cell_width = parseInt(data);
+      if (isNaN(checkers_cell_width))
+        checkers_cell_width = 1;
+      //alert(data);
+    }
+  </script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+  <canvas id="wegl-canvas" style="border: none; width: 100%; height: 100%;"></canvas>
+
+  <br />
+
+  <label for="input_checkers_cell_width"> cell width</label> <input type="text" id="input_checkers_cell_width"
+    onkeyup="update_checkers_cell_width()"><br>
+
+</body>
+
+</html>
