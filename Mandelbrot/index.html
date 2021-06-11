@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <title>Checkers</title>
+  <title>VB5 Mandelbrot</title>
 
   <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 
@@ -12,67 +12,12 @@
     uniform float mouse_coordx;
     uniform float mouse_coordy;
 
-    vec2 ComplSet(float x, float y)
-    {
-      vec2 z;
-      
-      z.x = x;
-      z.y = y;
-      return z;
-    }
-    
-    float ComplNorm(vec2 z)
-    {
-      float zn;
-      
-      zn = sqrt(z.x +z.y);
-      return zn;
-    }
-
-    vec2 ComplAddCompl(vec2 z1, vec2 z2)
-    {
-      vec2 z;
-      
-      z.x = z1.x + z2.x;
-      z.y = z1.y + z2.y; 
-      return z;
-    }
-
-    vec2 ComplMulCompl(vec2 z1, vec2 z2)
-    {
-      vec2 z;
-      
-      z.x = (z1.x * z2.x) - (z1.y * z2.y);
-      z.y = (z1.x * z2.y) + (z2.x * z1.y);
-      return z;
-    }
- 
-    int Mandelbrot(vec2 Z)
-    {
-      vec2 Z0 = Z, ZLast = Z;
-      int n;
-
-      for (int i = 0; i < 255; i++){
-        if (ComplNorm(ComplMulCompl(Z, Z)) < 4.0){
-          Z = ComplAddCompl(ComplMulCompl(Z0, Z0), ZLast);
-          Z0 = Z;
-          n = i;
-        }
-      }
-      return n;
-    }
-
     void main(void)
     {
-      /* Mondelbrot */
       vec2 Z0, Z, ZL;
       int nz;
-      /* Julia */
-      vec2 J0, J, C;
-      int nj;
-      
-      /* Mondelbrot */
-      ZL = vec2((gl_FragCoord.x - mouse_coordx) / 60.0, (gl_FragCoord.y - mouse_coordy) / 60.0);
+
+      ZL = vec2((gl_FragCoord.x - mouse_coordx) / 60.0, (gl_FragCoord.y + mouse_coordy - 700.0) / 60.0);
       for (int i = 0; i < 1024; i++)
       {
         Z.x = Z0.x * Z0.x - Z0.y * Z0.y + ZL.x;
@@ -82,22 +27,8 @@
           nz = i;                  
       } 
       
-      /* Julia */      
-      for (int i = 0; i < 1024; i++)
-      {
-        C = vec2((gl_FragCoord.x * float(i) - 60.0) / 60.0 * float(i), (gl_FragCoord.y - 60.0) / 60.0);
-        J.x = J0.x * J0.x - J0.y * J0.y + C.x;
-        J.y = 2.0 * J0.x * J0.y + C.y;
-        J0 = J;
-        if (J0.x * J0.x + J0.y * J0.y < 4.0)
-          nj = i;                  
-      }
-      /* Mondelbrot */
-      float color = float(nz) / 1024.0;
-      gl_FragColor = vec4(color * 60.0, color * 10.0, color * 10.0, 1.0);
-      /* Julia */
-      color = float(nj) / 1024.0;
-      //gl_FragColor = vec4(color * 60.0, color * 10.0, color * 10.0, 1.0);
+      float color = float(nz) / cell_width;
+      gl_FragColor = vec4(color * 30.0, color * 5.0, color * 5.0, 1.0);
     }
 </script>
 
@@ -109,7 +40,7 @@
 
     void main(void)
     {
-        gl_Position = vec4(aVertexPosition, 1.0);
+      gl_Position = vec4(aVertexPosition, 1.0);
     }
 </script>
 
@@ -167,6 +98,10 @@
 
     var shaderProgram;
 
+    var MouseX = 0;
+    var MouseY = 0;
+    var MouseClick = 0;
+
     function initShaders() {
       var fragmentShader = getShader(gl, "shader-fs");
       var vertexShader = getShader(gl, "shader-vs");
@@ -188,11 +123,9 @@
       shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
       shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
       shaderProgram.cell_width_uniform = gl.getUniformLocation(shaderProgram, "cell_width");
-
       shaderProgram.mouse_coordx_uniform = gl.getUniformLocation(shaderProgram, "mouse_coordx");
       shaderProgram.mouse_coordy_uniform = gl.getUniformLocation(shaderProgram, "mouse_coordy");
     }
-
 
     var mvMatrix = mat4.create();
     var pMatrix = mat4.create();
@@ -201,14 +134,15 @@
       gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
       gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
       gl.uniform1f(shaderProgram.cell_width_uniform, checkers_cell_width);
+      gl.uniform1f(shaderProgram.mouse_coordx_uniform, MouseX);
+      gl.uniform1f(shaderProgram.mouse_coordy_uniform, MouseY);
     }
 
-    function setMouseUniforms(e) {
-      var MouseCoordX = e.clientX;
-      var MouseCoordY = e.clientY;
-
-      gl.uniform1f(shaderProgram.mouse_coordx_uniform, MouseCoordX);
-      gl.uniform1f(shaderProgram.mouse_coordy_uniform, MouseCoordY);
+    function myCoor(e) {
+      if (MouseClick == 1) {
+        MouseX = e.clientX;
+        MouseY = e.clientY;
+      }
     }
 
     var squareVertexPositionBuffer;
@@ -242,7 +176,6 @@
       gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
       gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
       setMatrixUniforms();
-      //setMouseUniforms();
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
     }
 
@@ -251,12 +184,8 @@
       drawScene();
     }
 
-
     function webGLStart() {
-      // default cell width
-      checkers_cell_width = 30;
-      MouseCoordX = 0;
-      MouseCoordY = 0;
+      checkers_cell_width = 1024.0;
       document.getElementById('input_checkers_cell_width').value = checkers_cell_width;
 
       var xmlhttp = new XMLHttpRequest();
@@ -292,7 +221,8 @@
 
 
 <body onload="webGLStart();">
-  <canvas id="wegl-canvas" style="border: none; width: 100%; height: 100%;"></canvas>
+  <canvas id="wegl-canvas" style="border: 0mm" width=700; height=700; onmousemove=" myCoor(event)"
+    onmousedown="MouseClick = 1" ; onmouseup="MouseClick = 0" onmousewheel=" "></canvas>
 
   <br />
 
