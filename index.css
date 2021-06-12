@@ -1,7 +1,22 @@
 .button {
-    counter-reset: li; 
-    list-style: none; 
-    font: 14px "Trebuchet MS", "Lucida Sans";
-    padding: 13;
-    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    font: 30px Arial, sans-serif;
     }
+    
+body {
+    background-color: chocolate;
+}
+
+a:visited {
+  color:black;
+}
+
+a:hover {
+  color: darkblue;
+}
+#rcorners1 {
+  border-radius: 25px;
+  background: #73AD21;
+  padding: 20px; 
+  width: 200px;
+  height: 150px;  
+}
