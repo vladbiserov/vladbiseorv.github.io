@@ -1,25 +1,25 @@
 .button {
-    font: 30px Arial, sans-serif;
-    }
-    
+  font: 30px Cursive, sans-serif;
+  }
+  
 body {
-    background-color: honeydew;
-    counter-reset: section;
+  background-color: honeydew;
+  counter-reset: section;
 }
 
 p::before {
-  counter-increment: section;
-  content: "Task " counter(section) ": ";
-  background-image: linear-gradient(honeydew, #93a293);
-  border-radius: 50%;
-  padding: 20px;
-  width: 200px;
-  height: 150px;
+counter-increment: section;
+content: "Task " counter(section) ": ";
+background-image: linear-gradient(honeydew, #93a293);
+border-radius: 50%;
+padding: 20px;
+width: 200px;
+height: 150px;
 }
 
 a:visited {
-  color:black;
+color:black;
 }
 a:hover {
-  color: darkblue;
+color: darkblue;
 }
