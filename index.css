@@ -3,20 +3,23 @@
     }
     
 body {
-    background-color: chocolate;
+    background-color: honeydew;
+    counter-reset: section;
+}
+
+p::before {
+  counter-increment: section;
+  content: "Task " counter(section) ": ";
+  background-image: linear-gradient(honeydew, #93a293);
+  border-radius: 50%;
+  padding: 20px;
+  width: 200px;
+  height: 150px;
 }
 
 a:visited {
   color:black;
 }
-
 a:hover {
   color: darkblue;
-}
-#rcorners1 {
-  border-radius: 25px;
-  background: #73AD21;
-  padding: 20px; 
-  width: 200px;
-  height: 150px;  
 }
