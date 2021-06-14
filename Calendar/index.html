@@ -12,11 +12,14 @@
     </head>
 
     <body>
+        <input type="button" class="button button4" value="<" onClick="Back(); Days();">
         <td class="a">Year<input id="id1" size="5"></td>
         <td class="a">Month<input id="id2" size="5"></td>
-        <input type="button" class="button button4" value="Go" onClick="Days(); WeekDay();">
+        <input type="button" class="button button4" value="Go" onClick="WeekDay(); Days();">
+        <input type="button" class="button button4" value=">" onClick="Next(); Days(); ">
 
         <div class="div1">
+            <p id="months"></p>
             <p id="days"></p>
             <p id="0"></p>
             <p id="1"></p>
@@ -51,22 +54,23 @@
             <p id="30"></p>
             <p id="31"></p>
             <script type="text/javascript">
+                var Month = 5;
+                var Year = 2021;
+                var Day = 1;
                 function WeekDay() {
                     for (let i = 0; i < 31; i++) {
                         document.getElementById(i.toString()).innerHTML = "";
                     }
-                    var Year = document.getElementById("id1").value;
-                    var Month = document.getElementById("id2").value - 1;
-                    var Day = 1;
-                    var d = new Date(Year, Month, Day);
-                    var WeekDay = ["Sunday", "Monday", "Tuesday", "Wednesday",
-                        "Thursday", "Friday", "Saturday"];
-                    var Months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                    Year = document.getElementById("id1").value;
+                    Month = document.getElementById("id2").value - 1;
+                    Day = 1;
+                    let d = new Date(Year, Month, Day);
+                    let Months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
                     if (Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0)) {
                         Months[1] = 29;
                     }
-                    var a = 1 - d.getDay();
+                    let a = 1 - d.getDay();
                     for (let i = 0; i < 7; i++) {
                         for (let j = 0; j < 42; j += 7) {
                             var c = a + i + j;
@@ -84,12 +88,85 @@
                         }
                     }
                 }
-            </script>
-        </div>
-        <div class="div3">
-            <script type="text/javascript">
+                function Next() {
+                    for (let i = 0; i < 31; i++) {
+                        document.getElementById(i.toString()).innerHTML = "";
+                    }
+                    if (Month == 11) {
+                        Year++;
+                        Month = 0;
+                    }
+                    else {
+                        Month++;
+                    }
+                    Day = 1;
+                    let d = new Date(Year, Month, Day);
+                    let Months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                    if (Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0)) {
+                        Months[1] = 29;
+                    }
+                    let a = 1 - d.getDay();
+                    for (let i = 0; i < 7; i++) {
+                        for (let j = 0; j < 42; j += 7) {
+                            var c = a + i + j;
+                            if (c >= 1 && c <= Months[Month]) {
+                                if (c < 10) {
+                                    document.getElementById((j / 7).toString()).innerHTML += "0" + c.toString() + " ";
+                                }
+                                else {
+                                    document.getElementById((j / 7).toString()).innerHTML += c.toString() + " ";
+                                }
+                            }
+                            else {
+                                document.getElementById((j / 7).toString()).innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                            }
+                        }
+                    }
+                }
+                function Back() {
+                    for (let i = 0; i < 31; i++) {
+                        document.getElementById(i.toString()).innerHTML = "";
+                    }
+                    if (Month == 0) {
+                        Year--;
+                        Month = 11;
+                    }
+                    else {
+                        Month--;
+                    }
+                    Day = 1;
+                    let d = new Date(Year, Month, Day);
+                    let Months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                    if (Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0)) {
+                        Months[1] = 29;
+                    }
+                    let a = 1 - d.getDay();
+                    for (let i = 0; i < 7; i++) {
+                        for (let j = 0; j < 42; j += 7) {
+                            var c = a + i + j;
+                            if (c >= 1 && c <= Months[Month]) {
+                                if (c < 10) {
+                                    document.getElementById((j / 7).toString()).innerHTML += "0" + c.toString() + " ";
+                                }
+                                else {
+                                    document.getElementById((j / 7).toString()).innerHTML += c.toString() + " ";
+                                }
+                            }
+                            else {
+                                document.getElementById((j / 7).toString()).innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                            }
+                        }
+                    }
+                }
                 function Days() {
+                    let MonthsName = ["January", "Febrary", "March", "April",
+                        "May", "June", "July", "August", "September", "October", "November",
+                        "December"];
+                    document.getElementById("months").innerHTML = MonthsName[Month] + ", " + Year.toString();
                     document.getElementById("days").innerHTML = "Su Mo Tu We Th Fr Sa";
+
                 }
             </script>
         </div>
