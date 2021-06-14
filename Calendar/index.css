@@ -1,0 +1,44 @@
+body {
+  background-color: honeydew;
+} 
+
+.button {
+  background-color: #9daf9d;
+  border: none;
+  color: black;
+  padding: 10px;
+  text-align: center;
+  text-decoration:  wavy;
+  font-size: 16px;
+  margin: 8px 8px;
+}
+
+.button1 {border-radius: 2px;}
+.button2 {border-radius: 4px;}
+.button3 {border-radius: 8px;}
+.button4 {border-radius: 8px;}
+.button5 {border-radius: 50%;}
+
+p.a {
+font: 20px Arial, sans-serif;
+}
+.div2 {
+  width: fit-content;
+  height: min-content;  
+  padding: 50px;
+  border: 7px solid #bccebc;
+  background-color: #aecdae;
+  font-size: 15px;
+  border-radius: 30px;
+  text-align: center;  
+}
+
+.div1 {
+  width: auto-content;
+  height: min-content;  
+  padding: 50px;
+  border: 7px solid #bccebc;
+  background-color: #9bb79b;
+  font-size: 18px;  
+  border-radius: 30px;  
+}
