@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+<div class="div2">
+
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="index.css">
+        <title>Calendar</title>
+        <h1>VB5 CALENDAR</h1>
+        <h3> INPUT YEAR AND MONTH</h3>
+    </head>
+
+    <body>
+        <td class="a">Year<input id="id1" size="5"></td>
+        <td class="a">Month<input id="id2" size="5"></td>
+        <input type="button" class="button button4" value="Go" onClick="Days(); WeekDay();">
+
+        <div class="div1">
+            <p id="days"></p>
+            <p id="0"></p>
+            <p id="1"></p>
+            <p id="2"></p>
+            <p id="3"></p>
+            <p id="4"></p>
+            <p id="5"></p>
+            <p id="6"></p>
+            <p id="7"></p>
+            <p id="8"></p>
+            <p id="9"></p>
+            <p id="10"></p>
+            <p id="11"></p>
+            <p id="12"></p>
+            <p id="13"></p>
+            <p id="14"></p>
+            <p id="15"></p>
+            <p id="16"></p>
+            <p id="17"></p>
+            <p id="18"></p>
+            <p id="19"></p>
+            <p id="20"></p>
+            <p id="21"></p>
+            <p id="22"></p>
+            <p id="23"></p>
+            <p id="24"></p>
+            <p id="25"></p>
+            <p id="26"></p>
+            <p id="27"></p>
+            <p id="28"></p>
+            <p id="29"></p>
+            <p id="30"></p>
+            <p id="31"></p>
+            <script type="text/javascript">
+                function WeekDay() {
+                    for (let i = 0; i < 31; i++) {
+                        document.getElementById(i.toString()).innerHTML = "";
+                    }
+                    var Year = document.getElementById("id1").value;
+                    var Month = document.getElementById("id2").value - 1;
+                    var Day = 1;
+                    var d = new Date(Year, Month, Day);
+                    var WeekDay = ["Sunday", "Monday", "Tuesday", "Wednesday",
+                        "Thursday", "Friday", "Saturday"];
+                    var Months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                    if (Year % 4 == 0 && (Year % 100 != 0 || Year % 400 == 0)) {
+                        Months[1] = 29;
+                    }
+                    var a = 1 - d.getDay();
+                    for (let i = 0; i < 7; i++) {
+                        for (let j = 0; j < 42; j += 7) {
+                            var c = a + i + j;
+                            if (c >= 1 && c <= Months[Month]) {
+                                if (c < 10) {
+                                    document.getElementById((j / 7).toString()).innerHTML += "0" + c.toString() + " ";
+                                }
+                                else {
+                                    document.getElementById((j / 7).toString()).innerHTML += c.toString() + " ";
+                                }
+                            }
+                            else {
+                                document.getElementById((j / 7).toString()).innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                            }
+                        }
+                    }
+                }
+            </script>
+        </div>
+        <div class="div3">
+            <script type="text/javascript">
+                function Days() {
+                    document.getElementById("days").innerHTML = "Su Mo Tu We Th Fr Sa";
+                }
+            </script>
+        </div>
+    </body>
+</div>
+
+</html>
