@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF_8" />
+    <title>VB5 Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <div class="head">VB5 CHAT<br /></div>
+    <div class="center">
+        Name <input type="text" class="inputname" id="uname">
+        Message <input type="text" class="inputmsg" id="msg">
+        <input type="button" class="button button4" value="Send" onClick="ChangeMessage(); SendMessage(); "><br />
+        <p id="chat"></p>
+    </div>
+    <script type="text/javascript">
+        var msg;
+        var NumOfMessages = 0;
+        var Messages = [];
+        var username;
+
+        function ChangeMessage() {
+            msg = document.getElementById("msg").value;
+            username = document.getElementById("uname").value;
+        }
+
+        function SendMessage() {
+            if (msg !== "" && msg !== " ")
+                fetch("/SendNewMessage", { method: "POST", body: username + ": " + msg });
+        }
+
+        async function getMessage() {
+            try {
+                const responce = await window.fetch("/GetMessage", { method: 'GET' });
+                if (!responce.ok)
+                    throw new Error(`Response status is: ${response.status}`);
+                Messages = JSON.parse(await responce.text());
+                SeeChat();
+            } catch (err) {
+                console.log(err.message);
+            }
+            setTimeout(getMessage, 500);
+        }
+
+        function Chat() {
+            setTimeout(getMessage, 5000);
+        }
+
+        function SeeChat() {
+            document.getElementById("chat").innerHTML = "";
+
+            for (let i = 0; i < Messages.length; i++) {
+                var tag = document.createElement("p");
+                var text = document.createTextNode(Messages[i]);
+                tag.appendChild(text);
+                var element = document.getElementById("chat");
+                element.appendChild(tag);
+            }
+        }
+
+    </script>
+</head>
+
+<body onload="Chat()">
+</body>
+
+</html>
