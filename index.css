@@ -9,7 +9,7 @@ body {
 
 p::before {
 counter-increment: section;
-content: "Task " counter(section) ": ";
+content: "Task " counter(section) ":";
 background-image: linear-gradient(honeydew, #93a293);
 border-radius: 50%;
 padding: 20px;
