@@ -6,16 +6,37 @@
     <link rel="stylesheet" href="styles.css">
     <div class="head">VB5 CHAT<br /></div>
     <div class="center">
+        <p id="chat"></p>
         Name <input type="text" class="inputname" id="uname">
         Message <input type="text" class="inputmsg" id="msg">
-        <input type="button" class="button button4" value="Send" onClick="ChangeMessage(); SendMessage(); "><br />
-        <p id="chat"></p>
+        <input type="button" class="button button4" value="Send" onClick="ChangeMessage(); SendMessage();">
+        <input type="button" class="button button4" value="Scroll" onClick="scrollSet();"><br />
+
     </div>
     <script type="text/javascript">
         var msg;
         var NumOfMessages = 0;
         var Messages = [];
         var username;
+        var isScroll = false;
+
+        function scrollPage() {
+            window.scrollBy(0, 1000);
+            if (isScroll)
+                setTimeout(scrollPage, 10);
+        }
+
+        function scrollSet() {
+            if (!isScroll) {
+                isScroll = true;
+                setTimeout(scrollPage, 10);
+                return;
+            }
+            else {
+                isScroll = false;
+                return;
+            }
+        }
 
         function ChangeMessage() {
             msg = document.getElementById("msg").value;
@@ -59,7 +80,7 @@
     </script>
 </head>
 
-<body onload="Chat()">
+<body onload="Chat();">
 </body>
 
 </html>
